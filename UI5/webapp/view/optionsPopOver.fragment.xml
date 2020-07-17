@@ -1,0 +1,35 @@
+<core:FragmentDefinition xmlns="sap.m" 
+    xmlns:core="sap.ui.core">
+    <Popover title="Configuration" class="sapUiResponsivePadding--header sapUiResponsivePadding--footer" placement="Bottom">
+        <VBox class="sapUiSmallMargin">
+            <Label text="Organitzation" class="sapUiTinyMarginBegin"/>
+            <Select width="20rem" selectedKey="{UtilModel>/Org}" items="{OrgsModel>/}" change="handleOrgChange">
+                <items>
+                    <core:Item key="{OrgsModel>ID}" text="{OrgsModel>ID}" />
+                </items>
+            </Select>
+            <Label text="Space" class="sapUiTinyMarginBegin sapUiSmallMarginTop"/>
+            <Select busy="{UtilModel>/Busy/SpaceSelect}" width="20rem" selectedKey="{UtilModel>/Space}" items="{SpacesModel>/}" change="">
+                <items>
+                    <core:Item key="{SpacesModel>ID}" text="{SpacesModel>ID}" />
+                </items>
+            </Select>
+            <Label text="Deployment Type" class="sapUiTinyMarginBegin sapUiSmallMarginTop"/>
+            <Select  width="20rem" selectedKey="{UtilModel>/Type}" change="handleSelectChange">
+                <items>
+                    <core:Item key="Default" text="Simple Deploy" />
+                    <core:Item key="Ext" text="Deploy with MTAExt" />
+
+                </items>
+            </Select>
+            <Label text="Enviorement (.mtaext)" class="sapUiTinyMarginBegin sapUiSmallMarginTop"/>
+            <Select  width="20rem" selectedKey="" enabled="{= ${UtilModel>/Type} === 'Default'? false : true}" change="handleSelectChange">
+                <items>
+                    <core:Item key="Dev" text="Dev" />
+                    <core:Item key="Test" text="Test" />
+                    <core:Item key="Prod" text="Production" />
+                </items>
+            </Select>
+        </VBox>
+    </Popover>
+</core:FragmentDefinition>

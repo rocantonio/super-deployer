@@ -1,0 +1,119 @@
+<mvc:View controllerName="roc.deployer.controller.Home" displayBlock="true" 
+	xmlns="sap.m" 
+	xmlns:core="sap.ui.core" 
+	xmlns:mvc="sap.ui.core.mvc">
+	<Page id="page" title="Super Deployer" floatingFooter="true">
+		<headerContent>
+			<Button icon="sap-icon://action" tooltip="Option" press="handleOptionsPopoverPress"/>
+		</headerContent>
+		<content>
+			<HBox width="100%" height="80%">
+				<HBox width="45%" height="100%" class="contentFullWidth">
+					<List id="ListToNotDeploy" items="{ProjectsModel>/}" mode="MultiSelect" includeItemInSelection="true">
+						<headerToolbar>
+							<OverflowToolbar>
+								<content>
+									<Title text="Projects" level="H2" />
+									<ToolbarSpacer />
+								</content>
+							</OverflowToolbar>
+						</headerToolbar>
+						<CustomListItem>
+							<HBox>
+								<core:Icon size="2rem" src="sap-icon://attachment-photo" class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom" />
+								<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
+									<Link text="{ProjectsModel>projectName}" target="" press="handlePress"/>
+									<HBox>
+										<HBox>
+											<core:Icon src="sap-icon://accept" visible="{= ${ProjectsModel>mta} ? true: false}" color="green"/>
+											<core:Icon visible="{= ${ProjectsModel>mta} ? false: true}" src="sap-icon://decline" color="red"/>
+											<Label text="Mta"/>
+										</HBox>
+										<HBox class="sapUiTinyMarginBegin">
+											<core:Icon src="sap-icon://accept" visible="{= ${ProjectsModel>mtad} ? true: false}" color="green"/>
+											<core:Icon visible="{= ${ProjectsModel>mtad} ? false: true}" src="sap-icon://decline" color="red"/>
+											<Label text="MtaD"/>
+										</HBox>
+										<HBox class="sapUiLargeMarginBegin">
+											<core:Icon src="sap-icon://accept" visible="{= ${ProjectsModel>dev} ? true: false}" color="green"/>
+											<core:Icon visible="{= ${ProjectsModel>dev} ? false: true}" src="sap-icon://decline" color="red"/>
+											<Label text="Dev"/>
+										</HBox>
+										<HBox class="sapUiTinyMarginBegin">
+											<core:Icon src="sap-icon://accept" visible="{= ${ProjectsModel>test} ? true: false}" color="green"/>
+											<core:Icon visible="{= ${ProjectsModel>test} ? false: true}" src="sap-icon://decline" color="red"/>
+											<Label text="Test"/>
+										</HBox>
+										<HBox class="sapUiTinyMarginBegin">
+											<core:Icon src="sap-icon://accept" visible="{= ${ProjectsModel>prod} ? true: false}" color="green"/>
+											<core:Icon visible="{= ${ProjectsModel>prod} ? false: true}" src="sap-icon://decline" color="red"/>
+											<Label text="Prod"/>
+										</HBox>
+									</HBox>
+								</VBox>
+							</HBox>
+						</CustomListItem>
+					</List>
+				</HBox>
+				<VBox width="10%" height="100%" justifyContent="Center" alignItems="Center">
+					<Button icon="sap-icon://navigation-right-arrow" type="Transparent" press="itemsToDeploy"/>
+					<Button icon="sap-icon://nav-back" type="Transparent" press="itemsToNotDeploy"/>
+				</VBox>
+				<HBox width="45%" height="100%" class="contentFullWidth">
+					<List id="ListToDeploy" items="{ProjToDeploy>/}" mode="MultiSelect" includeItemInSelection="true">
+						<headerToolbar>
+							<OverflowToolbar>
+								<content>
+									<Title text="Projects to Deploy" level="H2" />
+									<ToolbarSpacer />
+								</content>
+							</OverflowToolbar>
+						</headerToolbar>
+						<CustomListItem>
+							<HBox>
+								<core:Icon size="2rem" src="sap-icon://attachment-photo" class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom" />
+								<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
+									<Link text="{ProjToDeploy>projectName}" target="" press="handlePress"/>
+									<HBox>
+										<HBox>
+											<core:Icon src="sap-icon://accept" visible="{= ${ProjToDeploy>mta} ? true: false}" color="green"/>
+											<core:Icon visible="{= ${ProjToDeploy>mta} ? false: true}" src="sap-icon://decline" color="red"/>
+											<Label text="Mta"/>
+										</HBox>
+										<HBox class="sapUiTinyMarginBegin">
+											<core:Icon src="sap-icon://accept" visible="{= ${ProjToDeploy>mtad} ? true: false}" color="green"/>
+											<core:Icon visible="{= ${ProjToDeploy>mtad} ? false: true}" src="sap-icon://decline" color="red"/>
+											<Label text="MtaD"/>
+										</HBox>
+										<HBox class="sapUiLargeMarginBegin">
+											<core:Icon src="sap-icon://accept" visible="{= ${ProjToDeploy>dev} ? true: false}" color="green"/>
+											<core:Icon visible="{= ${ProjToDeploy>dev} ? false: true}" src="sap-icon://decline" color="red"/>
+											<Label text="Dev"/>
+										</HBox>
+										<HBox class="sapUiTinyMarginBegin">
+											<core:Icon src="sap-icon://accept" visible="{= ${ProjToDeploy>test} ? true: false}" color="green"/>
+											<core:Icon visible="{= ${ProjToDeploy>test} ? false: true}" src="sap-icon://decline" color="red"/>
+											<Label text="Test"/>
+										</HBox>
+										<HBox class="sapUiTinyMarginBegin">
+											<core:Icon src="sap-icon://accept" visible="{= ${ProjToDeploy>prod} ? true: false}" color="green"/>
+											<core:Icon visible="{= ${ProjToDeploy>prod} ? false: true}" src="sap-icon://decline" color="red"/>
+											<Label text="Prod"/>
+										</HBox>
+									</HBox>
+								</VBox>
+							</HBox>
+						</CustomListItem>
+					</List>
+				</HBox>
+			</HBox>
+		</content>
+		<footer>
+			<OverflowToolbar>
+				<ToolbarSpacer/>
+				<Button type="Accept" text=""/>
+				<Button icon="sap-icon://upload-to-cloud" type="Reject" text="Deploy" press="handleDeployWarning"/>
+			</OverflowToolbar>
+		</footer>
+	</Page>
+</mvc:View>
