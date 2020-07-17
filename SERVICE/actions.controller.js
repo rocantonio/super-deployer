@@ -130,7 +130,7 @@ exports.deployProjects = (req, res) => {
         //Un for para hacer cada build cada todo (sera extensito)
         const executer = spawn(`${connect} && `, { shell: true })
  
-        const ls = spawn('cd /Users/rocantonio/Documents/Projects/ACCENTURE/ENEL && ls && cf orgs && cf org in', { shell: true });
+        const ls = spawn('cd /Users/rocantonio/Documents/Projects// && ls && cf orgs && cf org in', { shell: true });
 
         ls.stdout.on('data', (data) => {
             ws.send(`stdout ${data}`);
