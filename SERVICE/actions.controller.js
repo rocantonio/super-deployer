@@ -52,7 +52,7 @@ exports.getProjects = async (req, res) => {
         let ext = extensions.find((o) => {
             return obj.ID == o.dev || obj.ID == o.test || obj.ID == o.prod;
         })
-        projects.push({ projectName: obj.ID, mta: isEmpty(obj) ? false : obj, mtad: false, dev: ext.dev ? true : false, test: ext.test ? true : false, prod: ext.prod ? true : false });
+        projects.push({ uri: MTAUris[i], projectName: obj.ID, mta: isEmpty(obj) ? false : obj, mtad: false, dev: ext.dev ? true : false, test: ext.test ? true : false, prod: ext.prod ? true : false });
     }
 
     let MTADUris = await findMTAD;
@@ -70,7 +70,7 @@ exports.getProjects = async (req, res) => {
             let ext = extensions.find((o) => {
                 return obj.ID == o.dev || obj.ID == o.test || obj.ID == o.prod;
             })
-            projects.push({ projectName: obj.ID, mta: false, mtad: obj, dev: ext.dev ? true : false, test: ext.test ? true : false, prod: ext.prod ? true : false })
+            projects.push({ uri: MTADUris[i], projectName: obj.ID, mta: false, mtad: obj, dev: ext.dev ? true : false, test: ext.test ? true : false, prod: ext.prod ? true : false })
         }
     }
     for (var i in projects) {
@@ -121,13 +121,16 @@ exports.getSpaces = (req, res) => {
 };
 
 exports.deployProjects = (req, res) => {
-    const deploy = req.body;
+    const aProjects = req.body.projects;
+    const oInfo = req.body.info;
     // If you want to add a path as well, use path: "PathName"
     const wss = new WebSocketServer({ port: 8080 });
     wss.on('connection', function connection(ws) {
-        const ls = spawn('cd /Users/rocantonio/Documents/Projects/ACCENTURE/ENEL && ls && cf orgs && cf org in', {
-            shell: true
-          });
+        let connect = `cf t -o ${oInfo.Org} -s ${oInfo.Space}`;
+        //Un for para hacer cada build cada todo (sera extensito)
+        const executer = spawn(`${connect} && `, { shell: true })
+ 
+        const ls = spawn('cd /Users/rocantonio/Documents/Projects/ACCENTURE/ENEL && ls && cf orgs && cf org in', { shell: true });
 
         ls.stdout.on('data', (data) => {
             ws.send(`stdout ${data}`);
@@ -142,7 +145,7 @@ exports.deployProjects = (req, res) => {
             console.log(`child process exited with code ${code}`);
         });
     });
-    res.send({perfect: true})
+    res.send({ perfect: true })
 
     // ws.on('message', function incoming(message) {
     //     console.log('received: %s', message);

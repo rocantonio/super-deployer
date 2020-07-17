@@ -66,35 +66,23 @@ sap.ui.define([
 		handleDeployWarning: function () {
 			var infoDeployment = this.UtilModel.getData();
 			var projectsToDeploy = this.ProjToDeploy.getData();
+
 			if (!infoDeployment.Org || !infoDeployment.Space)
 				return MessageBox.error("No Organitzation or Space!!!");
 
 			if (!projectsToDeploy.length)
 				return MessageBox.error("No selected Projects!!!");
 
+
 			MessageBox.warning(`Are you sure you want to deploy on ${infoDeployment.Org} - ${infoDeployment.Space}?`, {
 				actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
 				emphasizedAction: MessageBox.Action.OK,
 				onClose: async (sAction) => {
 					if (sAction == "OK") {
-						await this._callAjax("/deployer/deploy", "POST", {});
+						await this._callAjax("/deployer/deploy", "POST", { info: infoDeployment, projects: projectsToDeploy });
 						// Do deployment
 						var ws = new WebSocket('ws://localhost:8080');
-						// var connection = new sap.ui.core.ws.WebSocket('ws://localhost:8080');
-						// connection.attachMessage(function (oControlEvent) {
-						// 	// // var data = jQuery.parseJSON(oControlEvent.getParameter('data')),
-						// 	//  msg = data.user + ': ' + data.text,
-						// 	//  lastInfo = oModel.oData.chat;
 
-						// 	// if (lastInfo.length > 0) lastInfo += "\r\n";  
-						// 	// oModel.setData({chat: lastInfo + msg}, true); 
-
-						// 	// // scroll to textarea bottom to show new messages
-						// 	// $('#chatInfo').scrollTop($('#chatInfo')[0].scrollHeight);
-
-						// 	// notify('onMessage', msg, 'information');     
-						// 	console.log(oControlEvent.getParameter('data'));
-						// });
 						ws.onopen = function () {
 							// log('CONNECT');
 						};
