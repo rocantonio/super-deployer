@@ -1,4 +1,17 @@
 /* add your custom styles here */
-.contentFullWidth > div{
+.contentFullWidth>div {
     width: 100%;
-} 
+}
+
+span[data-mydata="ERROR"] {
+    color: red;
+}
+
+span[data-mydata="NORM"] {
+    color: white;
+}
+
+.backTerminnal {
+    background-color: black;
+    padding-left: 10px;
+}

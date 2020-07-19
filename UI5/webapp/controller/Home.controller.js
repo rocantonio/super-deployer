@@ -15,14 +15,16 @@ sap.ui.define([
 		onInit: function () {
 			var ProjToModel = new JSONModel([]);
 			var SpacesModel = new JSONModel([]);
+			var TerminalModel = new JSONModel([]);
 			var oModel = new JSONModel({ Type: "Default", Env: "Dev", Org: "", Space: "", Busy: { SpaceSelect: false } });
-
+			this.getView().setModel(TerminalModel, "TerminalModel")
 			this.getView().setModel(oModel, "UtilModel");
 			this.getView().setModel(ProjToModel, "ProjToDeploy");
 			this.getView().setModel(SpacesModel, "SpacesModel");
 			this.ProjToDeploy = this.getView().getModel("ProjToDeploy");
 			this.SpacesModel = this.getView().getModel("SpacesModel");
 			this.UtilModel = this.getView().getModel("UtilModel");
+			this.TerminalModel = this.getView().getModel("TerminalModel")
 			this.ProjModel = this.getOwnerComponent().getModel("ProjectsModel");
 		},
 
@@ -73,7 +75,9 @@ sap.ui.define([
 			if (!projectsToDeploy.length)
 				return MessageBox.error("No selected Projects!!!");
 
-
+			if(infoDeployment.Type !== "Default")
+				return MessageBox.error("For now only Ext Deploy is unavailable, please use the other.");
+			
 			MessageBox.warning(`Are you sure you want to deploy on ${infoDeployment.Org} - ${infoDeployment.Space}?`, {
 				actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
 				emphasizedAction: MessageBox.Action.OK,
@@ -83,20 +87,40 @@ sap.ui.define([
 						// Do deployment
 						var ws = new WebSocket('ws://localhost:8080');
 
-						ws.onopen = function () {
-							// log('CONNECT');
+						ws.onopen = () => {
+							this._terminalDialog();
 						};
-						ws.onclose = function () {
-							// log('DISCONNECT');
+						ws.onclose = () => {
+							MessageBox.success("Finitto ;) !!");
+							console.log("DISCONECTED")
 						};
-						ws.onmessage = function (event) {
-							console.log('MESSAGE: ' + event.data);
+						ws.onmessage = (event) => {
+							let terminal = this.TerminalModel.getData();
+							terminal.push(JSON.parse(event.data));
+							this.TerminalModel.setData(terminal);
+							$('#firstScrollContainer').scrollTop($('#firstScrollContainer')[0].scrollHeight);
 						}
 					}
 				}
 			});
 		},
 
+		_terminalDialog: function () {
+			if (!this._oDialog) {
+				// this._oPopover = sap.ui.xmlfragment("roc.deployer.view.optionsPopOver", this);
+				Fragment.load({
+					name: "roc.deployer.view.terminalDialog",
+					controller: this
+				}).then(function (pDialog) {
+					this.TerminalModel.setData([]);
+					this._oDialog = pDialog;
+					this.getView().addDependent(this._oDialog);
+					this._oDialog.open()
+				}.bind(this));
+			} else {
+				this._oDialog.open();
+			}
+		},
 		_traspasItems: function (invers) {
 			var selectedItems = this.getView().byId(invers ? "ListToDeploy" : "ListToNotDeploy").getSelectedItems();
 			var projects = invers ? _.cloneDeep(this.ProjToDeploy.getData()) : _.cloneDeep(this.ProjModel.getData());

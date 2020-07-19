@@ -1,10 +1,15 @@
 {
 	"name": "super-deployer",
-	"displayName": "super-deployer",
+	"displayName": "Super Deployer",
 	"description": "Deployer for SCP Cloud Foundry Apps",
+	"publisher": "Roc",
 	"version": "0.0.1",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/rocantonio/super-deployer.git"
+	},
 	"engines": {
-		"vscode": "^1.46.0"
+		"vscode": "^1.47.0"
 	},
 	"categories": [
 		"Other"

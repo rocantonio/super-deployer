@@ -1,0 +1,16 @@
+<core:FragmentDefinition xmlns="sap.m" 
+    xmlns:core="sap.ui.core">
+    <Dialog title="Press [ESC] to exit terminal">
+        <ScrollContainer id="firstScrollContainer" height="20rem" width="50rem" vertical="true" horizontal="false" focusable="true">
+            <VBox items="{TerminalModel>/}" class="backTerminnal">
+                <HBox>
+                    <Text text="{TerminalModel>message}">
+                        <customData>
+                            <core:CustomData key="mydata" value="{TerminalModel>type}" writeToDom="true" />
+                        </customData>
+                    </Text>
+                </HBox>
+            </VBox>
+        </ScrollContainer>
+    </Dialog>
+</core:FragmentDefinition>        

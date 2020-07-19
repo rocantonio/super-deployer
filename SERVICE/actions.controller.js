@@ -52,6 +52,7 @@ exports.getProjects = async (req, res) => {
         let ext = extensions.find((o) => {
             return obj.ID == o.dev || obj.ID == o.test || obj.ID == o.prod;
         })
+        if (!ext) ext = { dev: "", test: "", prod: "" };
         projects.push({ uri: MTAUris[i], projectName: obj.ID, mta: isEmpty(obj) ? false : obj, mtad: false, dev: ext.dev ? true : false, test: ext.test ? true : false, prod: ext.prod ? true : false });
     }
 
@@ -70,6 +71,7 @@ exports.getProjects = async (req, res) => {
             let ext = extensions.find((o) => {
                 return obj.ID == o.dev || obj.ID == o.test || obj.ID == o.prod;
             })
+            if (!ext) ext = { dev: "", test: "", prod: "" };
             projects.push({ uri: MTADUris[i], projectName: obj.ID, mta: false, mtad: obj, dev: ext.dev ? true : false, test: ext.test ? true : false, prod: ext.prod ? true : false })
         }
     }
@@ -127,21 +129,37 @@ exports.deployProjects = (req, res) => {
     const wss = new WebSocketServer({ port: 8080 });
     wss.on('connection', function connection(ws) {
         let connect = `cf t -o ${oInfo.Org} -s ${oInfo.Space}`;
+        //Para mas adelante implementar deployment en tros entornos con MTAEXT (para la DB)
         //Un for para hacer cada build cada todo (sera extensito)
-        const executer = spawn(`${connect} && `, { shell: true })
- 
-        const ls = spawn('cd /Users/rocantonio/Documents/Projects// && ls && cf orgs && cf org in', { shell: true });
+        var project = ""
+        for (var i in aProjects) {
+            let oProj = aProjects[i];
+            if (oProj.mtad) {
+                project = project + '&& cd ' + aProjects[i].uri.fsPath.substr(0, aProjects[i].uri.fsPath.length - 9) + ' && cds build/all --clean && mbt assemble && cf deploy mta_archives/' + aProjects[i].mtad.ID + '_' + aProjects[i].mtad.version + '.mtar ';
+            } else {
+                project = project + '&& cd ' + aProjects[i].uri.fsPath.substr(0, aProjects[i].uri.fsPath.length - 8) + ' && mbt build && cf deploy mta_archives/' + aProjects[i].mtad.ID + '_' + aProjects[i].mtad.version + '.mtar ';
+            }
 
-        ls.stdout.on('data', (data) => {
-            ws.send(`stdout ${data}`);
+        }
+        const executer = spawn(`${connect} ${project}`, { shell: true });
+
+        executer.stdout.on('data', (data) => {
+            let obj = { message: data.toString(), type: "NORM" }
+            ws.send(JSON.stringify(obj));
             console.log(`stdout: ${data}`);
         });
 
-        ls.stderr.on('data', (data) => {
+        executer.stderr.on('data', (data) => {
+            let obj = { message: data.toString(), type: "ERROR" }
+            ws.send(JSON.stringify(obj));
             console.error(`stderr: ${data}`);
         });
 
-        ls.on('close', (code) => {
+        executer.on('close', (code) => {
+            console.log("HOLA")
+            let obj = { message: code, type: "FINITO" }
+            ws.send(JSON.stringify(obj));
+            ws.close();
             console.log(`child process exited with code ${code}`);
         });
     });
