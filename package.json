@@ -3,7 +3,7 @@
 	"displayName": "Super Deployer",
 	"description": "Deployer for SCP Cloud Foundry Apps",
 	"publisher": "Roc",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/rocantonio/super-deployer.git"

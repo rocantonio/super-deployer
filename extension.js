@@ -19,15 +19,15 @@ function activate(context) {
 
 	const myCommandId = 'superDeployer.startServer';
 
-	context.subscriptions.push(vscode.commands.registerCommand(myCommandId, () => {
+	context.subscriptions.push(vscode.commands.registerCommand(myCommandId, async () => {
 		// let fileProxy = vscode.workspace.findFiles('**/config.proxy.js', '**/node_modules/**', 1);
 		// let pathStarter = vscode.workspace.findFiles('**/webapp/index.html', '**/node_modules/**', 1);
-
+		let port = await server.checkPort();
 		if (serverStatus) {
 			stopServer();
 		} else {
-			startServer();
-			vscode.window.showInformationMessage(`Super Server started at http://localhost:3001`);
+			startServer(port);
+			vscode.window.showInformationMessage(`Super Server started at http://localhost:${port}`);
 		}
 
 
@@ -40,9 +40,9 @@ function activate(context) {
 exports.activate = activate;
 
 
-function updateStatusBarItem() {
+function updateStatusBarItem(port) {
 	if (serverStatus) {
-		myStatusBarItem.text = `$(microscope) :3001`;
+		myStatusBarItem.text = `$(microscope) :${port}`;
 	} else {
 		myStatusBarItem.text = `$(octoface) Super Deployer`;
 	}
@@ -50,14 +50,14 @@ function updateStatusBarItem() {
 	myStatusBarItem.show();
 }
 
-function startServer() {
+async function startServer(port) {
 	server.start();
 	serverStatus = true;
-	updateStatusBarItem();
+	updateStatusBarItem(port);
 }
 
 function stopServer() {
-	server.app.close();
+	server.stop();
 	serverStatus = false;
 	updateStatusBarItem();
 }

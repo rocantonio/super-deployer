@@ -3,6 +3,29 @@ const app = express();
 const router = require('./router');
 const cors = require('cors');
 const path = require('path');
+const net = require('net');
+var port = 3001;
+var server = net.createServer();
+var server2 = "";
+module.exports.checkPort = () => {
+  return new Promise((res, rej) => {
+    server.once('error', function (err) {
+      if (err.code === 'EADDRINUSE') {
+        port++;
+        module.exports.checkPort();
+      }
+    });
+
+    server.once('listening', function () {
+      // close the server if listening doesn't fail
+      server.close();
+      res(port);
+    });
+    server.listen(port);
+  })
+};
+
+
 
 app.use(cors());
 app.use('/', router);
@@ -10,5 +33,13 @@ app.use('/', router);
 app.use('/', express.static(path.join(__dirname, '../UI5/webapp/')));
 
 module.exports.app = app;
-module.exports.start = () =>
-  new Promise(resolve => app.listen(3001, () => resolve(app)))
+module.exports.start = async () => {
+  new Promise((resolve, reject) => {
+    server2 = app.listen(port);
+  })
+}
+
+
+module.exports.stop = () => {
+  server2.close()
+}
