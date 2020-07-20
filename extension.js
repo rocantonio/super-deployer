@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const server = require('./SERVICE/server');
+const open = require('open');
 let serverStatus = false;
 let myStatusBarItem;
 
@@ -53,6 +54,7 @@ function updateStatusBarItem(port) {
 async function startServer(port) {
 	server.start();
 	serverStatus = true;
+	await open(`http://localhost:${port}`);
 	updateStatusBarItem(port);
 }
 

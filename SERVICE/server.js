@@ -34,9 +34,7 @@ app.use('/', express.static(path.join(__dirname, '../UI5/webapp/')));
 
 module.exports.app = app;
 module.exports.start = async () => {
-  new Promise((resolve, reject) => {
     server2 = app.listen(port);
-  })
 }
 
 
