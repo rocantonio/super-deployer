@@ -13,10 +13,15 @@ sap.ui.define([
 		formatter: formatter,
 
 		onInit: function () {
+			var ws = new WebSocket('ws://localhost:'+window.location.port);
+
+			ws.onopen = () => {
+				console.log("SUPER")
+			}
 			var ProjToModel = new JSONModel([]);
 			var SpacesModel = new JSONModel([]);
 			var TerminalModel = new JSONModel([]);
-			var oModel = new JSONModel({ Type: "Default", Env: "Dev", Org: "", Space: "", Busy: { SpaceSelect: false } });
+			var oModel = new JSONModel({ Type: "Default", Env: "Dev", Org: "", Space: "", CFVersion: "CF", Busy: { SpaceSelect: false } });
 			this.getView().setModel(TerminalModel, "TerminalModel")
 			this.getView().setModel(oModel, "UtilModel");
 			this.getView().setModel(ProjToModel, "ProjToDeploy");
@@ -26,7 +31,11 @@ sap.ui.define([
 			this.UtilModel = this.getView().getModel("UtilModel");
 			this.TerminalModel = this.getView().getModel("TerminalModel")
 			this.ProjModel = this.getOwnerComponent().getModel("ProjectsModel");
+			this.OrgsModel = this.getOwnerComponent().getModel("OrgsModel");
+			this.TerminalModel.setSizeLimit(9000);
 		},
+
+
 
 		handleOptionsPopoverPress: function (oEvent) {
 			var oButton = oEvent.getSource();
@@ -65,6 +74,11 @@ sap.ui.define([
 			}
 		},
 
+		// handleVersionChange: function(){
+		// 	let version = this.UtilModel.getProperty("/CFVersion");
+		// 	this.OrgsModel
+		// },
+
 		handleDeployWarning: function () {
 			var infoDeployment = this.UtilModel.getData();
 			var projectsToDeploy = this.ProjToDeploy.getData();
@@ -75,19 +89,21 @@ sap.ui.define([
 			if (!projectsToDeploy.length)
 				return MessageBox.error("No selected Projects!!!");
 
-			if(infoDeployment.Type !== "Default")
+			if (infoDeployment.Type !== "Default")
 				return MessageBox.error("For now only Ext Deploy is unavailable, please use the other.");
-			
+
 			MessageBox.warning(`Are you sure you want to deploy on ${infoDeployment.Org} - ${infoDeployment.Space}?`, {
 				actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
 				emphasizedAction: MessageBox.Action.OK,
 				onClose: async (sAction) => {
 					if (sAction == "OK") {
-						await this._callAjax("/deployer/deploy", "POST", { info: infoDeployment, projects: projectsToDeploy });
+						// await this._callAjax("/deployer/deploy", "POST", { info: infoDeployment, projects: projectsToDeploy });
 						// Do deployment
-						var ws = new WebSocket('ws://localhost:8080');
+						var ws = new WebSocket('ws://localhost:'+window.location.port+'/main');
+
 
 						ws.onopen = () => {
+							ws.send(JSON.stringify({ info: infoDeployment, projects: projectsToDeploy }));
 							this._terminalDialog();
 						};
 						ws.onclose = () => {
@@ -99,7 +115,9 @@ sap.ui.define([
 							terminal.push(JSON.parse(event.data));
 							this.TerminalModel.setData(terminal);
 							$('#firstScrollContainer').scrollTop($('#firstScrollContainer')[0].scrollHeight);
-						}
+						};
+
+
 					}
 				}
 			});

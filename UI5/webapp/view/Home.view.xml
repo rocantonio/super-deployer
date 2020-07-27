@@ -111,7 +111,6 @@
 		<footer>
 			<OverflowToolbar>
 				<ToolbarSpacer/>
-				<Button type="Accept" text=""/>
 				<Button icon="sap-icon://upload-to-cloud" type="Reject" text="Deploy" press="handleDeployWarning"/>
 			</OverflowToolbar>
 		</footer>

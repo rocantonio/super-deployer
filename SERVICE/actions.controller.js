@@ -1,9 +1,19 @@
 const { exec, spawn } = require("child_process");
-const WebSocketServer = require('ws').Server;
 
+// const app = require('./server').app;
 const vscode = require('vscode');
 const yaml = require('js-yaml');
 const fs = require('fs');
+const { stderr } = require("process");
+
+let cfVersion = "";
+
+
+
+
+module.exports.cfVersion = cfVersion;
+
+
 
 function isEmpty(obj) {
     for (var key in obj) {
@@ -81,29 +91,45 @@ exports.getProjects = async (req, res) => {
     return res.send(projects);
 };
 
+
 exports.getOrgs = (req, res) => {
-    exec("cf orgs", (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
+    exec('cf7 -v', (error, stdout, stderr) => {
+        if (error.message) {
+            cfVersion = "cf";
         }
         if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
+            cfVersion = "cf";
         }
-        console.log(`stdout: ${stdout}`);
-        let orgs = stdout.split("name")[1].split("\n");
-        orgs.splice(orgs.length - 1, 1);
-        for (var i in orgs) {
-            orgs[i] = { ID: orgs[i] };
+        if (stdout.indexOf("version") != -1) {
+            cfVersion = "cf7";
+        } else {
+            cfVersion = "cf"
         }
-        return res.send(orgs);
+        this.cfVersion = cfVersion;
+        exec(`${cfVersion} orgs`, (error, stdout, stderr) => {
+            if (error) {
+                console.log(`error: ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                console.log(`stderr: ${stderr}`);
+                return;
+            }
+            console.log(`stdout: ${stdout}`);
+            let orgs = stdout.split("name")[1].split("\n");
+            orgs.splice(orgs.length - 1, 1);
+            for (var i in orgs) {
+                orgs[i] = { ID: orgs[i] };
+            }
+            return res.send(orgs);
 
-    });
+        });
+    })
+
 };
 
 exports.getSpaces = (req, res) => {
-    exec(`cf org "${req.body.ID}"`, (error, stdout, stderr) => {
+    exec(`${cfVersion} org "${req.body.ID}"`, (error, stdout, stderr) => {
         if (error) {
             console.log(`error: ${error.message}`);
             return;
@@ -126,51 +152,12 @@ exports.deployProjects = (req, res) => {
     const aProjects = req.body.projects;
     const oInfo = req.body.info;
     // If you want to add a path as well, use path: "PathName"
-    const wss = new WebSocketServer({ port: 8080 });
-    wss.on('connection', function connection(ws) {
-        let connect = `cf t -o ${oInfo.Org} -s ${oInfo.Space}`;
-        //Para mas adelante implementar deployment en tros entornos con MTAEXT (para la DB)
-        //Un for para hacer cada build cada todo (sera extensito)
-        var project = ""
-        for (var i in aProjects) {
-            let oProj = aProjects[i];
-            if (oProj.mtad) {
-                project = project + '&& cd ' + aProjects[i].uri.fsPath.substr(0, aProjects[i].uri.fsPath.length - 9) + ' && cds build/all --clean && mbt assemble && cf deploy mta_archives/' + aProjects[i].mtad.ID + '_' + aProjects[i].mtad.version + '.mtar ';
-            } else {
-                project = project + '&& cd ' + aProjects[i].uri.fsPath.substr(0, aProjects[i].uri.fsPath.length - 8) + ' && mbt build && cf deploy mta_archives/' + aProjects[i].mtad.ID + '_' + aProjects[i].mtad.version + '.mtar ';
-            }
 
-        }
-        const executer = spawn(`${connect} ${project}`, { shell: true });
 
-        executer.stdout.on('data', (data) => {
-            let obj = { message: data.toString(), type: "NORM" }
-            ws.send(JSON.stringify(obj));
-            console.log(`stdout: ${data}`);
-        });
-
-        executer.stderr.on('data', (data) => {
-            let obj = { message: data.toString(), type: "ERROR" }
-            ws.send(JSON.stringify(obj));
-            console.error(`stderr: ${data}`);
-        });
-
-        executer.on('close', (code) => {
-            console.log("HOLA")
-            let obj = { message: code, type: "FINITO" }
-            ws.send(JSON.stringify(obj));
-            ws.close();
-            console.log(`child process exited with code ${code}`);
-        });
-    });
     res.send({ perfect: true })
 
     // ws.on('message', function incoming(message) {
     //     console.log('received: %s', message);
-    // });
-
-
-
-
+    // })
 
 };
