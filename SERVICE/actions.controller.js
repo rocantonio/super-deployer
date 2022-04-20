@@ -94,13 +94,13 @@ exports.getProjects = async (req, res) => {
 
 exports.getOrgs = (req, res) => {
     exec('cf7 -v', (error, stdout, stderr) => {
-        if (error.message) {
+        if (error && error.message) {
             cfVersion = "cf";
         }
         if (stderr) {
             cfVersion = "cf";
         }
-        if (stdout.indexOf("version") != -1) {
+        if (stdout && stdout.indexOf("version") != -1) {
             cfVersion = "cf7";
         } else {
             cfVersion = "cf"
