@@ -106,7 +106,7 @@ exports.getOrgs = (req, res) => {
             cfVersion = "cf"
         }
         this.cfVersion = cfVersion;
-        exec(`${cfVersion} orgs`, (error, stdout, stderr) => {
+        exec(`${cfVersion} orgs`,(error, stdout, stderr) => {
             if (error) {
                 console.log(`error: ${error.message}`);
                 return;
